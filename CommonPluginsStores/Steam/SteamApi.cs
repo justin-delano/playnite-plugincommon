@@ -50,7 +50,7 @@ namespace CommonPluginsStores.Steam
         private static string UrlWishlistApi = UrlApi + @"/IWishlistService/GetWishlist/v1?steamid={0}&key={1}";
 
 
-        private static string UrlRefreshToken = UrlLogin + @"/jwt/refresh?redir={0}";
+        private static string UrlRefreshToken = UrlStore + @"/login/refresh?redir={0}";
 
         private static string UrlProfileLogin => UrlSteamCommunity + @"/login/home/?goto=";
         private static string UrlProfileById => UrlSteamCommunity + @"/profiles/{0}";
@@ -203,10 +203,8 @@ namespace CommonPluginsStores.Steam
                     // renew
                     if (!isLogged)
                     {
-                        string url = string.Format(UrlRefreshToken, CurrentAccountInfos.Link);
-
                         Thread.Sleep(250);
-                        List<HttpCookie> cookies = GetNewWebCookies(new List<string> { url, "https://steamcommunity.com/my", UrlStore });
+                        List<HttpCookie> cookies = GetNewWebCookies(new List<string> { "https://store.steampowered.com/", "https://steamcommunity.com/my/profile", UrlStore + "/account/" });
                         _ = SetStoredCookies(cookies);
                         userData = GetUserData();
                         isLogged = userData?.RgOwnedApps?.Count > 0;
@@ -214,7 +212,7 @@ namespace CommonPluginsStores.Steam
                         if (!isLogged)
                         {
                             Thread.Sleep(250);
-                            cookies = GetNewWebCookies(new List<string> { url, "https://steamcommunity.com/my", UrlStore }, true);
+                            cookies = GetNewWebCookies(new List<string> { "https://store.steampowered.com/", "https://steamcommunity.com/my/profile", UrlStore + "/account/" }, true);
                             _ = SetStoredCookies(cookies);
                             userData = GetUserData();
                             isLogged = userData?.RgOwnedApps?.Count > 0;
@@ -223,7 +221,7 @@ namespace CommonPluginsStores.Steam
                         if (!isLogged)
                         {
                             Thread.Sleep(250);
-                            cookies = GetNewWebCookies(new List<string> { url, "https://steamcommunity.com/my", UrlStore }, true);
+                            cookies = GetNewWebCookies(new List<string> { "https://store.steampowered.com/", "https://steamcommunity.com/my/profile", UrlStore + "/account/" }, true);
                             _ = SetStoredCookies(cookies);
                             userData = GetUserData();
                             isLogged = userData?.RgOwnedApps?.Count > 0;
