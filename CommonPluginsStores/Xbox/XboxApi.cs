@@ -134,7 +134,7 @@ namespace CommonPluginsStores.Xbox
                 {
                     ObservableCollection<AccountWishlist> data = new ObservableCollection<AccountWishlist>();
                     string wishlistId = accountInfos.Link.Split('=')[1];
-                    string response = Web.DownloadStringData(string.Format(UrlApiWishlistShared, CodeLang.GetEpicLang(Locale), wishlistId)).GetAwaiter().GetResult();
+                    string response = Web.DownloadStringData(string.Format(UrlApiWishlistShared, CodeLang.GetEpicLang(Locale), wishlistId), redirectDepth: 0).GetAwaiter().GetResult();
                     _ = Serialization.TryFromJson(response, out Wishlists wishlists);
 
                     foreach (Product product in wishlists.Products)

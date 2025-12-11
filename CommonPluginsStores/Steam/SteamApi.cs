@@ -49,9 +49,6 @@ namespace CommonPluginsStores.Steam
 
         private static string UrlWishlistApi = UrlApi + @"/IWishlistService/GetWishlist/v1?steamid={0}&key={1}";
 
-
-        private static string UrlRefreshToken = UrlLogin + @"/jwt/refresh?redir={0}";
-
         private static string UrlProfileLogin => UrlSteamCommunity + @"/login/home/?goto=";
         private static string UrlProfileById => UrlSteamCommunity + @"/profiles/{0}";
         private static string UrlProfileByName => UrlSteamCommunity + @"/id/{0}";
@@ -203,10 +200,8 @@ namespace CommonPluginsStores.Steam
                     // renew
                     if (!isLogged)
                     {
-                        string url = string.Format(UrlRefreshToken, CurrentAccountInfos.Link);
-
                         Thread.Sleep(250);
-                        List<HttpCookie> cookies = GetNewWebCookies(new List<string> { url, "https://steamcommunity.com/my", UrlStore });
+                        List<HttpCookie> cookies = GetNewWebCookies(new List<string> { UrlStore, UrlSteamCommunity + "/my/profile", UrlStore + "/account/" });
                         _ = SetStoredCookies(cookies);
                         userData = GetUserData();
                         isLogged = userData?.RgOwnedApps?.Count > 0;
@@ -214,7 +209,7 @@ namespace CommonPluginsStores.Steam
                         if (!isLogged)
                         {
                             Thread.Sleep(250);
-                            cookies = GetNewWebCookies(new List<string> { url, "https://steamcommunity.com/my", UrlStore }, true);
+                            cookies = GetNewWebCookies(new List<string> { UrlStore, UrlSteamCommunity + "/my/profile", UrlStore + "/account/" }, true);
                             _ = SetStoredCookies(cookies);
                             userData = GetUserData();
                             isLogged = userData?.RgOwnedApps?.Count > 0;
@@ -223,7 +218,7 @@ namespace CommonPluginsStores.Steam
                         if (!isLogged)
                         {
                             Thread.Sleep(250);
-                            cookies = GetNewWebCookies(new List<string> { url, "https://steamcommunity.com/my", UrlStore }, true);
+                            cookies = GetNewWebCookies(new List<string> { UrlStore, UrlSteamCommunity + "/my/profile", UrlStore + "/account/" }, true);
                             _ = SetStoredCookies(cookies);
                             userData = GetUserData();
                             isLogged = userData?.RgOwnedApps?.Count > 0;
@@ -825,7 +820,7 @@ namespace CommonPluginsStores.Steam
                 Logger.Warn($"Not found with SteamApps - Use Steam app url");
 
                 string url = string.Format(UrlSteamGameLocalised, appId, CodeLang.GetSteamLang(Locale));
-                string response = Web.DownloadStringData(url).GetAwaiter().GetResult();
+                string response = Web.DownloadStringData(url, redirectDepth: 0).GetAwaiter().GetResult();
 
                 HtmlParser parser = new HtmlParser();
                 IHtmlDocument htmlDocument = parser.Parse(response);
@@ -1048,7 +1043,7 @@ namespace CommonPluginsStores.Steam
             {
                 Thread.Sleep(1000); // Prevent http 429
                 string url = string.Format(UrlApiGameDetails, appId, CodeLang.GetSteamLang(Locale));
-                string response = Web.DownloadStringData(url).GetAwaiter().GetResult();
+                string response = Web.DownloadStringData(url, redirectDepth: 0).GetAwaiter().GetResult();
 
                 if (Serialization.TryFromJson(response, out Dictionary<string, StoreAppDetailsResult> parsedData))
                 {
@@ -1109,7 +1104,7 @@ namespace CommonPluginsStores.Steam
             try
             {
                 string url = string.Format(UrlSteamGameSearch, searchTerm.NormalizeGameName(), "en");
-                string response = Web.DownloadStringData(url).GetAwaiter().GetResult();
+                string response = Web.DownloadStringData(url, redirectDepth: 0).GetAwaiter().GetResult();
                 _ = Serialization.TryFromJson(response, out SteamSearch steamSearch, out Exception ex);
                 if (ex != null)
                 {
@@ -1226,7 +1221,7 @@ namespace CommonPluginsStores.Steam
                 ObservableCollection<AccountWishlist> accountWishlists = new ObservableCollection<AccountWishlist>();
                 if (ulong.TryParse(accountInfos.UserId, out ulong steamId) && !CurrentAccountInfos.ApiKey.IsNullOrEmpty())
                 {
-                    string json = Web.DownloadStringData(string.Format(UrlWishlistApi, steamId, CurrentAccountInfos.ApiKey)).GetAwaiter().GetResult();
+                    string json = Web.DownloadStringData(string.Format(UrlWishlistApi, steamId, CurrentAccountInfos.ApiKey), redirectDepth: 0).GetAwaiter().GetResult();
                     _ = Serialization.TryFromJson(json, out SteamWishlistApi steamWishlistApi, out Exception ex);
                     if (ex != null)
                     {
@@ -1610,7 +1605,7 @@ namespace CommonPluginsStores.Steam
             try
             {
                 Thread.Sleep(1000);
-                string data = Web.DownloadStringData(string.Format(SteamDbExtensionAchievements, appId)).GetAwaiter().GetResult();
+                string data = Web.DownloadStringData(string.Format(SteamDbExtensionAchievements, appId), redirectDepth: 0).GetAwaiter().GetResult();
                 if (Serialization.TryFromJson(data, out ExtensionsAchievements extensionsAchievementse))
                 {
                     if (!extensionsAchievementse?.Success ?? true)

@@ -65,7 +65,7 @@ namespace CommonPluginsStores.PCGamingWiki
                 {
                     url = string.Format(UrlWithSteamId, appId);
                     Thread.Sleep(500);
-                    string response = Web.DownloadStringData(url).GetAwaiter().GetResult();
+                    string response = Web.DownloadStringData(url, redirectDepth: 0).GetAwaiter().GetResult();
                     if (!response.Contains("search results", StringComparison.OrdinalIgnoreCase))
                     {
                         Logger.Info($"Url for PCGamingWiki find for {game.Name} - {url}");
@@ -127,7 +127,7 @@ namespace CommonPluginsStores.PCGamingWiki
 
             try
             {
-                string response = Web.DownloadStringData(url).GetAwaiter().GetResult();
+                string response = Web.DownloadStringData(url, redirectDepth: 0).GetAwaiter().GetResult();
                 if (Serialization.TryFromJson(response, out dynamic data) && data[3]?.Count > 0)
                 {
                     List<string> listName = Serialization.FromJson<List<string>>(Serialization.ToJson(data[1]));

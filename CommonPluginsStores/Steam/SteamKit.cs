@@ -261,7 +261,7 @@ namespace CommonPluginsStores.Steam
                     // By moment, SteamKit return nothing
                     if (results["achievements"].Children.Count == 0)
                     {
-                        string data = Web.DownloadStringData(string.Format(UrlGetGameAchievements, appId, language)).GetAwaiter().GetResult();
+                        string data = Web.DownloadStringData(string.Format(UrlGetGameAchievements, appId, language), redirectDepth: 0).GetAwaiter().GetResult();
                         if (Serialization.TryFromJson(data, out Models.SteamAchievements steamAchievements))
                         {
                             steamAchievements.Response?.Achievements?.ForEach(x =>
