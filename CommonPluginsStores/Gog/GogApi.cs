@@ -794,7 +794,7 @@ namespace CommonPluginsStores.Gog
             {
                 accountInfos.AccountStatus = AccountStatus.Checking;
                 string url = string.Format(UrlUser, accountInfos.Pseudo);
-                string response = await Web.DownloadStringData(url);
+                string response = await Web.DownloadStringData(url, redirectDepth: 0);
                 return !response.Contains("hook-test=\"isPrivate\"");
             }
             catch (Exception ex)
@@ -876,7 +876,7 @@ namespace CommonPluginsStores.Gog
 
             if (productApiDetail == null)
             {
-                string response = Web.DownloadStringData(string.Format(UrlApiGameInfo, id, CodeLang.GetGogLang(Locale).ToLower())).GetAwaiter().GetResult();
+                string response = Web.DownloadStringData(string.Format(UrlApiGameInfo, id, CodeLang.GetGogLang(Locale).ToLower()), redirectDepth: 0).GetAwaiter().GetResult();
                 if (!response.Contains("<!DOCTYPE html>", StringComparison.InvariantCultureIgnoreCase))
                 {
                     _ = Serialization.TryFromJson(response, out productApiDetail, out Exception ex);
@@ -957,7 +957,7 @@ namespace CommonPluginsStores.Gog
         {
             string joined = string.Join(",", ids);
             string urlPrice = string.Format(UrlApiPrice, joined, localCurrency.country.ToUpper(), localCurrency.currency.ToUpper());
-            string dataPrice = Web.DownloadStringData(urlPrice).GetAwaiter().GetResult();
+            string dataPrice = Web.DownloadStringData(urlPrice, redirectDepth: 0).GetAwaiter().GetResult();
 
             Serialization.TryFromJson(dataPrice, out dynamic dataObj, out Exception ex);
             if (ex != null)
@@ -994,7 +994,7 @@ namespace CommonPluginsStores.Gog
             {
                 if (IsUserLoggedIn)
                 {
-                    string response = Web.DownloadStringData(UrlUserData).GetAwaiter().GetResult();
+                    string response = Web.DownloadStringData(UrlUserData, redirectDepth: 0).GetAwaiter().GetResult();
                     if (Serialization.TryFromJson(response, out UserData userData) && userData?.Currencies != null)
                     {
                         return userData.Currencies.Select(x => new StoreCurrency { country = userData.Country, currency = x.Code.ToUpper(), symbol = x.Symbol }).ToList();
