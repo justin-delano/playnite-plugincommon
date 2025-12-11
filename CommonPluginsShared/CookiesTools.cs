@@ -71,24 +71,14 @@ namespace CommonPluginsShared
                             Encoding.UTF8,
                             WindowsIdentity.GetCurrent().User.Value));
 
-                    // Filter out expired cookies, keeping those with no expiration or valid expiration
-                    List<HttpCookie> validCookies = storedCookies
-                        .Where(x => x.Expires == null || (DateTime)x.Expires > DateTime.Now)
-                        .ToList();
-
-                    if (validCookies.Count < storedCookies.Count)
+                    bool hasExpired = storedCookies.Any(x => x.Expires != null && (DateTime)x.Expires <= DateTime.Now);
+                    if (hasExpired)
                     {
-                        Logger.Info($"Filtered out {storedCookies.Count - validCookies.Count} expired cookies for {ClientName}");
-                    }
-
-                    // Return valid cookies even if some expired - partial cookie set may still work
-                    if (validCookies.Count > 0)
-                    {
-                        return validCookies;
+                        message = $"Expired cookies for {ClientName}";
                     }
                     else
                     {
-                        message = $"All cookies expired for {ClientName}";
+                        return storedCookies;
                     }
                 }
                 catch (Exception ex)
@@ -98,7 +88,7 @@ namespace CommonPluginsShared
             }
 
             Logger.Warn(message);
-            return new List<HttpCookie>();
+            return storedCookies;
         }
 
         public bool SetStoredCookies(List<HttpCookie> httpCookies)
